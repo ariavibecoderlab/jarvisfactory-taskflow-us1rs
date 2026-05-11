@@ -1,0 +1,2648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TaskFlow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ── CSS Variables ── */
+    :root {
+      --color-primary:        #00e5b0;
+      --color-primary-dark:   #00b896;
+      --color-secondary:      #d4a574;
+      --color-ink:            #0e1216;
+      --color-slate:          #3f4654;
+      --color-mist:           #a3aab5;
+      --color-cloud:          #f3f5f7;
+      --color-white:          #ffffff;
+      --color-danger:         #e25e6c;
+      --color-success:        #4faa6e;
+      --color-warning:        #d49b1e;
+      --color-priority-high:  #e25e6c;
+      --color-priority-med:   #e8944a;
+      --color-priority-low:   #4faa6e;
+
+      /* Typography */
+      --font-primary:  'Inter', sans-serif;
+      --font-display:  'Manrope', sans-serif;
+
+      /* Spacing */
+      --space-xs:   4px;
+      --space-sm:   8px;
+      --space-md:   12px;
+      --space-lg:   16px;
+      --space-xl:   24px;
+      --space-2xl:  32px;
+      --space-3xl:  48px;
+
+      /* Shadows */
+      --shadow-xs: 0 1px 2px rgba(14,18,22,0.04);
+      --shadow-sm: 0 1px 3px rgba(14,18,22,0.04);
+      --shadow-md: 0 4px 12px rgba(14,18,22,0.08);
+      --shadow-lg: 0 8px 24px rgba(14,18,22,0.12);
+      --shadow-xl: 0 30px 80px rgba(14,18,22,0.30);
+
+      /* Easing */
+      --ease-natural: cubic-bezier(0.22, 1, 0.36, 1);
+      --ease-in-out:  cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { font-size: 15px; -webkit-font-smoothing: antialiased; }
+
+    body {
+      font-family: var(--font-primary);
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--color-slate);
+      background: var(--color-cloud);
+      min-height: 100vh;
+    }
+
+    /* ── Typography helpers ── */
+    h1 {
+      font-family: var(--font-display);
+      font-size: 32px;
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -0.5px;
+      color: var(--color-ink);
+    }
+    h2 {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 600;
+      line-height: 1.2;
+      color: var(--color-ink);
+    }
+    h3 {
+      font-family: var(--font-primary);
+      font-size: 18px;
+      font-weight: 600;
+      line-height: 1.3;
+      color: var(--color-slate);
+    }
+    p { font-size: 15px; line-height: 1.6; color: var(--color-slate); }
+    small { font-size: 13px; line-height: 1.5; color: var(--color-mist); }
+    label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: var(--color-mist);
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    /* ── Buttons ── */
+    button { font-family: var(--font-primary); cursor: pointer; border: none; transition: all 150ms var(--ease-in-out); }
+
+    .btn-primary {
+      background: var(--color-primary);
+      color: var(--color-white);
+      padding: 11px 18px;
+      border-radius: 9px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+    }
+    .btn-primary:hover { background: var(--color-primary-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,229,176,0.2); }
+    .btn-primary:active { transform: translateY(0); box-shadow: 0 2px 6px rgba(0,229,176,0.15); }
+    .btn-primary:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--color-slate);
+      border: 1px solid var(--color-mist);
+      padding: 10px 16px;
+      border-radius: 9px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .btn-secondary:hover { background: var(--color-cloud); border-color: rgba(63,70,84,0.4); }
+    .btn-secondary:active { background: var(--color-cloud); border-color: var(--color-slate); }
+    .btn-secondary:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--color-slate);
+      padding: 10px 14px;
+      border-radius: 9px;
+      font-size: 14px;
+      font-weight: 400;
+      border: none;
+    }
+    .btn-ghost:hover { background: rgba(243,245,247,0.5); color: var(--color-ink); }
+    .btn-ghost:active { background: var(--color-cloud); }
+    .btn-ghost:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+    .btn-danger {
+      background: transparent;
+      color: var(--color-danger);
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      border: none;
+    }
+    .btn-danger:hover { background: rgba(226,94,108,0.1); }
+    .btn-danger:active { background: rgba(226,94,108,0.15); }
+    .btn-danger:focus-visible { outline: 2px solid var(--color-danger); outline-offset: 2px; }
+
+    /* ── Inputs ── */
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    select,
+    textarea {
+      font-family: var(--font-primary);
+      font-size: 14px;
+      color: var(--color-ink);
+      background: var(--color-cloud);
+      border: 1px solid rgba(163,170,181,0.4);
+      padding: 12px 14px;
+      border-radius: 9px;
+      width: 100%;
+      outline: none;
+      transition: border-color 150ms var(--ease-in-out), box-shadow 150ms var(--ease-in-out);
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    input::placeholder, textarea::placeholder { color: rgba(163,170,181,0.8); }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 4px rgba(0,229,176,0.15);
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--color-white);
+      border: 1px solid rgba(163,170,181,0.3);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* ── Screen containers ── */
+    .screen { display: none; width: 100%; min-height: 100vh; }
+    .screen.active { display: flex; }
+
+    #screen-loader {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: var(--color-white);
+    }
+
+    #screen-login {
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--color-white);
+      padding: var(--space-xl);
+    }
+
+    #screen-dashboard {
+      flex-direction: column;
+      background: var(--color-cloud);
+    }
+
+    #screen-settings {
+      flex-direction: column;
+      background: var(--color-cloud);
+    }
+
+    /* ── Loader spinner ── */
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid rgba(0,229,176,0.2);
+      border-top-color: var(--color-primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    .spinner-sm {
+      width: 16px;
+      height: 16px;
+      border-width: 2px;
+    }
+    .spinner-label {
+      margin-top: var(--space-md);
+      font-size: 13px;
+      color: var(--color-mist);
+    }
+
+    /* ── Navbar ── */
+    .navbar {
+      height: 56px;
+      background: var(--color-white);
+      border-bottom: 1px solid rgba(163,170,181,0.3);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 var(--space-2xl);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .navbar-brand {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--color-ink);
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .navbar-mark {
+      width: 24px;
+      height: 24px;
+      background: var(--color-primary);
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+    .navbar-right {
+      display: flex;
+      align-items: center;
+      gap: var(--space-lg);
+    }
+    .user-role-pill {
+      background: var(--color-cloud);
+      color: var(--color-slate);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      border: 1px solid rgba(163,170,181,0.3);
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 9999;
+      padding: 12px 16px;
+      border-radius: 9px;
+      font-family: var(--font-primary);
+      font-size: 14px;
+      max-width: 320px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 250ms var(--ease-natural), transform 250ms var(--ease-natural);
+      transform: translateX(100px);
+      aria-live: polite;
+    }
+    #toast.show {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(0);
+    }
+    #toast.info {
+      background: rgba(0,229,176,0.1);
+      color: var(--color-primary-dark);
+      border: 1px solid rgba(0,229,176,0.3);
+    }
+    #toast.success {
+      background: rgba(79,170,110,0.1);
+      color: var(--color-success);
+      border: 1px solid rgba(79,170,110,0.3);
+      box-shadow: 0 4px 12px rgba(79,170,110,0.2);
+    }
+    #toast.error {
+      background: rgba(226,94,108,0.1);
+      color: var(--color-danger);
+      border: 1px solid rgba(226,94,108,0.3);
+      box-shadow: 0 4px 12px rgba(226,94,108,0.2);
+    }
+    #toast.warning {
+      background: rgba(212,155,30,0.1);
+      color: var(--color-warning);
+      border: 1px solid rgba(212,155,30,0.3);
+    }
+
+    /* ── Modal ── */
+    #modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(14,18,22,0.6);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 1999;
+    }
+    #modal-backdrop.show { display: flex; align-items: center; justify-content: center; }
+    .modal {
+      background: var(--color-white);
+      border-radius: 16px;
+      padding: var(--space-2xl);
+      max-width: 480px;
+      width: 90%;
+      box-shadow: var(--shadow-xl);
+      position: relative;
+      z-index: 2000;
+    }
+    .modal-header { font-size: 18px; font-weight: 600; color: var(--color-ink); margin-bottom: var(--space-lg); font-family: var(--font-primary); }
+    .modal-body { font-size: 15px; color: var(--color-slate); margin-bottom: var(--space-xl); line-height: 1.6; }
+    .modal-footer { display: flex; gap: var(--space-md); justify-content: flex-end; }
+
+    /* ── Utility ── */
+    .hidden { display: none !important; }
+    .flex-center { display: flex; justify-content: center; align-items: center; }
+    .flex-between { display: flex; justify-content: space-between; align-items: center; }
+    .text-mist { color: var(--color-mist); }
+    .text-danger { color: var(--color-danger); }
+    .text-success { color: var(--color-success); }
+    .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .w-full { width: 100%; }
+
+    /* ── Keyframes ── */
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(100px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes bounceSubtle {
+      0%   { transform: translateY(0); }
+      50%  { transform: translateY(-4px); }
+      100% { transform: translateY(0); }
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .navbar { padding: 0 var(--space-lg); }
+      .user-role-pill { max-width: 120px; font-size: 11px; }
+    }
+  
+    /* ── Auth Screen ── */
+    .auth-wrap {
+      width: 100%;
+      max-width: 420px;
+      margin: 0 auto;
+      animation: fadeIn 250ms var(--ease-in-out);
+    }
+    .auth-logo {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      justify-content: center;
+      margin-bottom: var(--space-sm);
+    }
+    .auth-logo-mark {
+      width: 32px;
+      height: 32px;
+      background: var(--color-primary);
+      border-radius: 8px;
+      flex-shrink: 0;
+    }
+    .auth-logo-name {
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--color-ink);
+      letter-spacing: -0.5px;
+    }
+    .auth-tagline {
+      text-align: center;
+      font-size: 14px;
+      color: var(--color-mist);
+      margin-bottom: var(--space-2xl);
+      line-height: 1.5;
+    }
+    .auth-tabs {
+      display: flex;
+      background: var(--color-cloud);
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: var(--space-xl);
+      gap: 4px;
+    }
+    .auth-tab {
+      flex: 1;
+      padding: 9px 16px;
+      border-radius: 7px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: var(--font-primary);
+      border: none;
+      background: transparent;
+      color: var(--color-mist);
+      cursor: pointer;
+      transition: all 150ms var(--ease-in-out);
+    }
+    .auth-tab.active {
+      background: var(--color-white);
+      color: var(--color-ink);
+      box-shadow: var(--shadow-xs);
+    }
+    .auth-tab:hover:not(.active) { color: var(--color-slate); }
+    .auth-tab:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+    .auth-form { display: none; }
+    .auth-form.active { display: block; animation: fadeIn 200ms var(--ease-in-out); }
+
+    .auth-field { margin-bottom: var(--space-lg); }
+    .auth-field label { margin-bottom: 6px; }
+
+    .auth-actions {
+      margin-top: var(--space-xl);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+    .auth-actions .btn-primary {
+      width: 100%;
+      padding: 13px 18px;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-sm);
+      min-height: 48px;
+    }
+    .auth-footer-link {
+      text-align: center;
+      margin-top: var(--space-md);
+    }
+    .auth-footer-link button {
+      background: none;
+      border: none;
+      color: var(--color-primary-dark);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-family: var(--font-primary);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .auth-footer-link button:hover { color: var(--color-primary); }
+    .auth-footer-link button:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+    .auth-divider {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      margin: var(--space-lg) 0;
+    }
+    .auth-divider::before, .auth-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(163,170,181,0.3);
+    }
+    .auth-divider span {
+      font-size: 12px;
+      color: var(--color-mist);
+      white-space: nowrap;
+    }
+    .auth-bismillah {
+      text-align: center;
+      font-size: 13px;
+      color: var(--color-mist);
+      margin-bottom: var(--space-xl);
+      font-style: italic;
+      letter-spacing: 0.3px;
+    }
+    .auth-name-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-xs);
+    }
+
+    @media (max-width: 768px) {
+      #screen-login { padding: var(--space-lg); }
+      .auth-wrap { max-width: 100%; }
+    }
+
+
+    /* ── Dashboard Layout ── */
+    .dashboard-main {
+      flex: 1;
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: var(--space-2xl) var(--space-2xl);
+    }
+
+    /* ── Quick-Add Form ── */
+    .add-task-card {
+      background: var(--color-white);
+      border: 1px solid rgba(163,170,181,0.3);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: var(--space-2xl);
+    }
+    .add-task-card h2 {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--color-ink);
+      margin-bottom: var(--space-md);
+    }
+    .add-task-row {
+      display: flex;
+      gap: var(--space-sm);
+      align-items: stretch;
+    }
+    .add-task-input-wrap {
+      flex: 1;
+    }
+    .add-task-input-wrap input {
+      height: 44px;
+      padding: 10px 14px;
+    }
+    .add-task-priority-wrap {
+      flex-shrink: 0;
+      width: 130px;
+    }
+    .add-task-priority-wrap select {
+      height: 44px;
+      padding: 10px 14px;
+    }
+    .add-task-btn-wrap {
+      flex-shrink: 0;
+    }
+    .add-task-btn-wrap .btn-primary {
+      height: 44px;
+      padding: 10px 18px;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+    .add-task-error {
+      margin-top: var(--space-sm);
+      font-size: 13px;
+      color: var(--color-danger);
+      display: none;
+    }
+    .add-task-error.show { display: block; }
+
+    /* ── Active Tasks Section ── */
+    .tasks-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-md);
+    }
+    .tasks-section-title {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--color-ink);
+      letter-spacing: -0.3px;
+    }
+    .tasks-count-badge {
+      background: var(--color-cloud);
+      color: var(--color-slate);
+      border: 1px solid rgba(163,170,181,0.3);
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 3px 10px;
+    }
+
+    /* ── Task List Container ── */
+    .task-list {
+      background: var(--color-white);
+      border: 1px solid rgba(163,170,181,0.3);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* ── Empty State ── */
+    .empty-state {
+      text-align: center;
+      padding: 64px var(--space-xl);
+      color: var(--color-mist);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    .empty-state-icon {
+      font-size: 36px;
+      margin-bottom: var(--space-md);
+      opacity: 0.5;
+    }
+    .empty-state p {
+      color: var(--color-mist);
+      font-size: 15px;
+    }
+
+    /* ── Task Row (structure only; colors wired in task_rendering module) ── */
+    .task-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-lg);
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--color-cloud);
+      background: var(--color-white);
+      border-left: 4px solid transparent;
+      transition: background 150ms var(--ease-in-out);
+      animation: fadeIn 250ms var(--ease-natural);
+    }
+    .task-row:last-child { border-bottom: none; }
+    .task-row:hover { background: rgba(243,245,247,0.5); }
+    .task-row.priority-high   { border-left-color: var(--color-priority-high); }
+    .task-row.priority-medium { border-left-color: var(--color-priority-med); }
+    .task-row.priority-low    { border-left-color: var(--color-priority-low); }
+    .task-row.completed-row {
+      opacity: 0.6;
+    }
+
+    /* ── Task Checkbox ── */
+    .task-checkbox {
+      width: 20px;
+      height: 20px;
+      min-width: 20px;
+      border: 2px solid rgba(163,170,181,0.6);
+      border-radius: 5px;
+      background: var(--color-white);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 150ms var(--ease-in-out);
+      font-size: 12px;
+      color: transparent;
+      flex-shrink: 0;
+    }
+    .task-checkbox:hover { border-color: var(--color-primary); }
+    .task-checkbox:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+    .task-checkbox.checked {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+      color: var(--color-white);
+    }
+
+    /* ── Task Title & Badge ── */
+    .task-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+    .task-title {
+      font-size: 15px;
+      font-weight: 500;
+      line-height: 1.4;
+      color: var(--color-ink);
+      font-family: var(--font-primary);
+      word-break: break-word;
+    }
+    .task-title.done {
+      text-decoration: line-through;
+      color: var(--color-mist);
+    }
+    .task-priority-badge {
+      display: inline-block;
+      width: fit-content;
+      padding: 4px 8px;
+      border-radius: 5px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-family: var(--font-primary);
+      line-height: 1;
+    }
+    .badge-high   { background: rgba(226,94,108,0.12);  color: var(--color-priority-high); }
+    .badge-medium { background: rgba(232,148,74,0.12);  color: var(--color-priority-med); }
+    .badge-low    { background: rgba(79,170,110,0.12);  color: var(--color-priority-low); }
+
+    /* ── Task Actions ── */
+    .task-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      flex-shrink: 0;
+    }
+
+    /* ── Completed Section Toggle ── */
+    .completed-section {
+      margin-top: var(--space-2xl);
+    }
+    .completed-toggle-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--color-white);
+      border: 1px solid rgba(163,170,181,0.3);
+      border-radius: 12px;
+      padding: 14px 20px;
+      cursor: pointer;
+      font-family: var(--font-primary);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-slate);
+      transition: background 150ms var(--ease-in-out), border-color 150ms var(--ease-in-out);
+      box-shadow: var(--shadow-sm);
+    }
+    .completed-toggle-btn:hover { background: var(--color-cloud); border-color: rgba(163,170,181,0.5); }
+    .completed-toggle-btn:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+    .completed-toggle-left {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+    .completed-toggle-icon {
+      font-size: 16px;
+      transition: transform 200ms var(--ease-in-out);
+    }
+    .completed-toggle-icon.open { transform: rotate(90deg); }
+    .completed-toggle-count {
+      background: var(--color-cloud);
+      border: 1px solid rgba(163,170,181,0.3);
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--color-mist);
+      padding: 2px 9px;
+    }
+    .completed-task-list {
+      margin-top: var(--space-sm);
+      background: var(--color-white);
+      border: 1px solid rgba(163,170,181,0.3);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      display: none;
+      animation: fadeIn 200ms var(--ease-in-out);
+    }
+    .completed-task-list.open { display: block; }
+
+    /* ── Dashboard bottom padding ── */
+    .dashboard-main { padding-bottom: var(--space-3xl); }
+
+    /* ── Responsive Dashboard ── */
+    @media (max-width: 768px) {
+      .dashboard-main { padding: var(--space-lg) var(--space-lg) var(--space-3xl); }
+      .add-task-row { flex-wrap: wrap; }
+      .add-task-input-wrap { flex: 1 1 100%; }
+      .add-task-priority-wrap { flex: 1; }
+      .add-task-btn-wrap { flex: 1; }
+      .add-task-btn-wrap .btn-primary { width: 100%; justify-content: center; }
+      .task-row { padding: 14px 16px; gap: var(--space-md); }
+    }
+    @media (max-width: 480px) {
+      .user-role-pill { display: none; }
+    }
+
+
+/* ── Task CRUD Module CSS additions ── */
+.task-row.adding {
+  animation: bounceSubtle 600ms var(--ease-in-out);
+}
+.btn-complete {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  border: 2px solid rgba(163,170,181,0.6);
+  border-radius: 5px;
+  background: var(--color-white);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 150ms var(--ease-in-out);
+  font-size: 12px;
+  color: transparent;
+  flex-shrink: 0;
+  padding: 0;
+}
+.btn-complete:hover { border-color: var(--color-primary); background: rgba(0,229,176,0.06); }
+.btn-complete:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+.btn-complete.checked {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+
+/* ── Task Rendering Module CSS ── */
+
+/* Priority-specific row hover tints */
+.task-row.priority-high:hover   { background: rgba(226,94,108,0.03); }
+.task-row.priority-medium:hover { background: rgba(232,148,74,0.03); }
+.task-row.priority-low:hover    { background: rgba(79,170,110,0.03); }
+
+/* Completed row styling */
+.task-row.completed-row {
+  border-left-color: var(--color-mist) !important;
+  opacity: 0.65;
+}
+.task-row.completed-row .task-title {
+  text-decoration: line-through;
+  color: var(--color-mist);
+}
+.task-row.completed-row .task-priority-badge {
+  opacity: 0.5;
+}
+
+/* Uncheck button for completed tasks (undo complete) */
+.btn-uncomplete {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  border-radius: 5px;
+  background: var(--color-primary);
+  border: 2px solid var(--color-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: var(--color-white);
+  flex-shrink: 0;
+  padding: 0;
+  transition: all 150ms var(--ease-in-out);
+}
+.btn-uncomplete:hover {
+  background: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+  transform: scale(0.92);
+}
+.btn-uncomplete:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+/* Fade-in animation for new task rows */
+@keyframes taskSlideIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.task-row.new-task {
+  animation: taskSlideIn 300ms var(--ease-natural) forwards;
+}
+
+/* Fade-out for deleted rows */
+@keyframes taskFadeOut {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(40px); }
+}
+.task-row.removing {
+  animation: taskFadeOut 200ms var(--ease-in-out) forwards;
+  pointer-events: none;
+}
+
+/* Completed section open animation */
+.completed-task-list.open {
+  display: block;
+  animation: fadeIn 200ms var(--ease-in-out);
+}
+
+/* Section divider between priority groups (optional visual) */
+.priority-group-label {
+  display: none; /* hidden but reserved for future grouping */
+}
+
+/* Ensure add-task btn stretches properly on mobile */
+@media (max-width: 768px) {
+  .add-task-btn-wrap .btn-primary { width: 100%; }
+}
+
+
+/* ── MODULE 6: Polish & Refinement CSS ── */
+
+/* ── Enhanced Mobile-First Responsive ── */
+
+/* Ensure minimum 44px touch targets on all interactive elements */
+button,
+.auth-tab,
+.task-checkbox,
+.btn-complete,
+.btn-uncomplete,
+.completed-toggle-btn {
+  min-height: 44px;
+}
+/* Exception: small inline icon buttons get min-width instead */
+.btn-complete,
+.btn-uncomplete,
+.task-checkbox {
+  min-height: 20px;
+}
+/* Task delete / action buttons — ensure 44px tap area via padding */
+.task-actions .btn-danger {
+  min-height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 10px;
+}
+.task-actions .btn-complete,
+.task-actions .btn-uncomplete {
+  /* Wrap in a larger hit area */
+  padding: 12px;
+  min-height: 44px;
+  min-width: 44px;
+  border-radius: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* Restore checkbox appearance inside hit-area wrapper */
+.task-actions .btn-complete > span,
+.task-actions .btn-uncomplete > span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+  flex-shrink: 0;
+}
+
+/* ── Keyboard Focus Ring (all interactive elements) ── */
+*:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(0,229,176,0.15);
+}
+
+/* ── Logout Confirm Modal ── */
+#modal-logout-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(14,18,22,0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 1999;
+  align-items: center;
+  justify-content: center;
+}
+#modal-logout-backdrop.show {
+  display: flex;
+}
+
+/* ── Improved Toast positioning & sizing ── */
+#toast {
+  min-width: 220px;
+  max-width: min(320px, calc(100vw - 32px));
+  word-break: break-word;
+}
+
+/* ── Auth form — prevent iOS zoom on focus (font-size >= 16px on mobile) ── */
+@media (max-width: 768px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  select,
+  textarea {
+    font-size: 16px; /* prevents iOS auto-zoom */
+  }
+  .add-task-input-wrap input,
+  .add-task-priority-wrap select {
+    font-size: 16px;
+  }
+}
+
+/* ── Desktop centering ── */
+@media (min-width: 769px) {
+  #screen-login {
+    padding: var(--space-3xl) var(--space-xl);
+  }
+  .auth-wrap {
+    max-width: 420px;
+  }
+}
+
+/* ── Extra small mobile (< 380px) ── */
+@media (max-width: 380px) {
+  .auth-logo-name { font-size: 22px; }
+  .auth-tagline { font-size: 13px; }
+  .navbar-brand span { font-size: 16px; }
+  .tasks-section-title { font-size: 16px; }
+  .add-task-priority-wrap { width: 110px; }
+}
+
+/* ── Smooth screen transitions ── */
+.screen {
+  animation: fadeIn 200ms var(--ease-in-out);
+}
+
+/* ── High contrast mode support ── */
+@media (forced-colors: active) {
+  .task-row.priority-high,
+  .task-row.priority-medium,
+  .task-row.priority-low {
+    border-left-width: 6px;
+  }
+  .task-priority-badge {
+    border: 1px solid currentColor;
+  }
+}
+
+/* ── Print: hide nav and actions ── */
+@media print {
+  .navbar, .add-task-card, .task-actions, .completed-section { display: none !important; }
+  .screen { display: block !important; min-height: unset; }
+  #screen-dashboard { display: block !important; }
+  body { background: white; }
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ── Skip-to-content link (accessibility) ── */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 16px;
+  background: var(--color-primary);
+  color: var(--color-ink);
+  padding: 8px 16px;
+  border-radius: 0 0 8px 8px;
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 9999;
+  text-decoration: none;
+  transition: top 150ms;
+}
+.skip-link:focus {
+  top: 0;
+}
+
+/* ── Settings screen improvements ── */
+.settings-main {
+  flex: 1;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: var(--space-2xl);
+}
+@media (max-width: 768px) {
+  .settings-main { padding: var(--space-lg); }
+}
+
+</style>
+
+<script>
+(function(){
+  var SUPABASE_URL = 'https://jtvhhpnmpdduxlmikqtq.supabase.co';
+  var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp0dmhocG5tcGRkdXhsbWlrcXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MTkwMDQsImV4cCI6MjA5MzQ5NTAwNH0.tc44OE_xuRavg_siV8AtL9jthR1Gt3TEiKob_4JZ7SE';
+  var APP_ID = 'ced440ec-6f1e-4ffc-ae66-5eeea3c3cc66';
+
+  function uuid(){return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,function(c){var r=Math.random()*16|0;var v=c=='x'?r:(r&0x3|0x8);return v.toString(16);});}
+
+  // Simple SHA-256 for password hashing (browser-native)
+  async function sha256(str){
+    var buf = new TextEncoder().encode(str);
+    var hash = await crypto.subtle.digest('SHA-256', buf);
+    return Array.from(new Uint8Array(hash)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+  }
+
+  async function api(path, method, body){
+    var opts = {
+      method: method || 'GET',
+      headers: {
+        'apikey': SUPABASE_ANON,
+        'Authorization': 'Bearer ' + SUPABASE_ANON,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      }
+    };
+    if(body) opts.body = JSON.stringify(body);
+    var r = await fetch(SUPABASE_URL + '/rest/v1/' + path, opts);
+    var data = await r.json().catch(function(){return null;});
+    if(!r.ok) throw new Error((data && data.message) || ('HTTP ' + r.status));
+    return data;
+  }
+
+  var Jarvis = {
+    APP_ID: APP_ID,
+
+    // ── AUTH ──
+    signup: async function(email, password, fullName, role){
+      if(!email || !password) throw new Error('Email and password required');
+      var hash = await sha256(password);
+      var rows = await api('app_users', 'POST', {
+        app_id: APP_ID,
+        email: email.toLowerCase().trim(),
+        password_hash: hash,
+        full_name: fullName || '',
+        role: role || 'user'
+      });
+      var user = rows[0];
+      var session = await this._createSession(user.id);
+      this._saveSession(session.token, user);
+      return { success: true, user: user };
+    },
+
+    login: async function(email, password){
+      var hash = await sha256(password);
+      var rows = await api('app_users?app_id=eq.' + APP_ID + '&email=eq.' + encodeURIComponent(email.toLowerCase().trim()) + '&password_hash=eq.' + hash, 'GET');
+      if(!rows || !rows.length) throw new Error('Invalid email or password');
+      var user = rows[0];
+      var session = await this._createSession(user.id);
+      this._saveSession(session.token, user);
+      return { success: true, user: user };
+    },
+
+    logout: function(){
+      localStorage.removeItem('jarvis_session_' + APP_ID);
+      localStorage.removeItem('jarvis_user_' + APP_ID);
+    },
+
+    getCurrentUser: function(){
+      var raw = localStorage.getItem('jarvis_user_' + APP_ID);
+      if(!raw) return null;
+      try { return JSON.parse(raw); } catch(e){ return null; }
+    },
+
+    isLoggedIn: function(){
+      return !!this.getCurrentUser();
+    },
+
+    _createSession: async function(userId){
+      var token = uuid() + uuid();
+      var expires = new Date(Date.now() + 30*24*3600*1000).toISOString(); // 30 days
+      var rows = await api('app_sessions', 'POST', {
+        app_id: APP_ID, app_user_id: userId, token: token, expires_at: expires
+      });
+      return rows[0];
+    },
+
+    _saveSession: function(token, user){
+      localStorage.setItem('jarvis_session_' + APP_ID, token);
+      localStorage.setItem('jarvis_user_' + APP_ID, JSON.stringify(user));
+    },
+
+    // ── DATA ──
+    // saveData('staff', 'staff-123', { name: 'Ali', birthday: '...' })
+    saveData: async function(table, key, value){
+      var user = this.getCurrentUser();
+      var payload = {
+        app_id: APP_ID,
+        app_user_id: user ? user.id : null,
+        table_name: table,
+        record_key: key,
+        value: value
+      };
+      // Upsert via PostgREST
+      var r = await fetch(SUPABASE_URL + '/rest/v1/app_data?on_conflict=app_id,table_name,record_key', {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_ANON,
+          'Authorization': 'Bearer ' + SUPABASE_ANON,
+          'Content-Type': 'application/json',
+          'Prefer': 'resolution=merge-duplicates,return=representation'
+        },
+        body: JSON.stringify(payload)
+      });
+      if(!r.ok){ var e = await r.json().catch(function(){return{};}); throw new Error(e.message || 'Save failed'); }
+      return await r.json();
+    },
+
+    // loadData('staff') => all rows; loadData('staff', 'staff-123') => one row
+    loadData: async function(table, key){
+      var url = 'app_data?app_id=eq.' + APP_ID + '&table_name=eq.' + encodeURIComponent(table);
+      if(key) url += '&record_key=eq.' + encodeURIComponent(key);
+      url += '&order=created_at.desc';
+      var rows = await api(url, 'GET');
+      if(key) return rows && rows.length ? rows[0].value : null;
+      return rows.map(function(r){return Object.assign({_key: r.record_key}, r.value);});
+    },
+
+    deleteData: async function(table, key){
+      await api('app_data?app_id=eq.' + APP_ID + '&table_name=eq.' + encodeURIComponent(table) + '&record_key=eq.' + encodeURIComponent(key), 'DELETE');
+      return { success: true };
+    },
+
+    // ── ADMIN: list all users of this app (call from admin pages only) ──
+    listUsers: async function(){
+      var rows = await api('app_users?app_id=eq.' + APP_ID + '&order=created_at.desc&select=id,email,full_name,role,created_at', 'GET');
+      return rows;
+    }
+  };
+
+  window.Jarvis = Jarvis;
+})();
+</script>
+</head>
+<body>
+
+  <!-- Page loader -->
+  <div id="screen-loader">
+    <div class="spinner"></div>
+    <p class="spinner-label">Loading TaskFlow…</p>
+  </div>
+
+  <!-- Main app screens -->
+  <main id="app">
+    <!-- Screen: Login / Signup -->
+    <div id="screen-login" class="screen">
+      <div class="auth-wrap">
+        <!-- Logo -->
+        <div class="auth-logo">
+          <div class="auth-logo-mark"></div>
+          <span class="auth-logo-name">TaskFlow</span>
+        </div>
+        <p class="auth-tagline">Your tasks, organized — accessible from any browser, any device, any time.</p>
+        <p class="auth-bismillah">بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ</p>
+
+        <!-- Tab toggle -->
+        <div class="auth-tabs" role="tablist">
+          <button class="auth-tab active" id="tab-login" role="tab" aria-selected="true"
+            aria-controls="form-login" onclick="switchAuthTab('login')">Log In</button>
+          <button class="auth-tab" id="tab-signup" role="tab" aria-selected="false"
+            aria-controls="form-signup" onclick="switchAuthTab('signup')">Sign Up</button>
+        </div>
+
+        <!-- Login Form -->
+        <div class="auth-form active" id="form-login" role="tabpanel" aria-labelledby="tab-login">
+          <form onsubmit="doLogin(event)">
+            <div class="auth-field">
+              <label for="login-email">Email Address</label>
+              <input type="email" id="login-email" placeholder="you@example.com"
+                autocomplete="email" required />
+            </div>
+            <div class="auth-field">
+              <label for="login-password">Password</label>
+              <input type="password" id="login-password" placeholder="Your password"
+                autocomplete="current-password" required />
+            </div>
+            <div class="auth-actions">
+              <button type="submit" class="btn-primary" id="login-btn">
+                <span id="login-btn-text">Log In</span>
+                <div class="spinner spinner-sm hidden" id="login-spinner"></div>
+              </button>
+            </div>
+          </form>
+          <div class="auth-footer-link">
+            <button onclick="showPasswordReset()" type="button">Forgot your password?</button>
+          </div>
+        </div>
+
+        <!-- Signup Form -->
+        <div class="auth-form" id="form-signup" role="tabpanel" aria-labelledby="tab-signup">
+          <form onsubmit="doSignup(event)">
+            <div class="auth-field">
+              <label for="signup-name">Full Name</label>
+              <input type="text" id="signup-name" placeholder="Your full name"
+                autocomplete="name" />
+            </div>
+            <div class="auth-field">
+              <label for="signup-email">Email Address</label>
+              <input type="email" id="signup-email" placeholder="you@example.com"
+                autocomplete="email" required />
+            </div>
+            <div class="auth-field">
+              <label for="signup-password">Password</label>
+              <input type="password" id="signup-password" placeholder="Choose a password (min 6 chars)"
+                autocomplete="new-password" required minlength="6" />
+            </div>
+            <div class="auth-actions">
+              <button type="submit" class="btn-primary" id="signup-btn">
+                <span id="signup-btn-text">Create Account</span>
+                <div class="spinner spinner-sm hidden" id="signup-spinner"></div>
+              </button>
+            </div>
+          </form>
+          <div class="auth-footer-link">
+            <button onclick="switchAuthTab('login')" type="button">Already have an account? Log in</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title">
+      <div class="modal">
+        <div class="modal-header" id="delete-modal-title">Delete Task?</div>
+        <div class="modal-body" id="delete-modal-body">This action cannot be undone.</div>
+        <div class="modal-footer">
+          <button class="btn-secondary" id="modal-cancel-btn" onclick="closeDeleteModal()">Cancel</button>
+          <button class="btn-danger" onclick="confirmDeleteTask()" style="background:rgba(226,94,108,0.1);padding:10px 16px;border-radius:9px;font-size:14px;font-weight:600;">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen: Settings -->
+    <div id="screen-settings" class="screen"></div>
+  
+    <!-- Screen: Dashboard -->
+    <div id="screen-dashboard" class="screen" style="flex-direction:column; background:var(--color-cloud);">
+
+      <!-- Navbar -->
+      <nav class="navbar" aria-label="Main navigation">
+        <div class="navbar-brand" onclick="showOnly('screen-dashboard')" role="link" tabindex="0"
+          aria-label="TaskFlow home" onkeydown="if(event.key==='Enter')showOnly('screen-dashboard')">
+          <div class="navbar-mark" aria-hidden="true"></div>
+          TaskFlow
+        </div>
+        <div class="navbar-right">
+          <span class="user-role-pill" id="dashboard-user-email" aria-label="Logged in user"></span>
+          <button class="btn-ghost" onclick="doLogout()" aria-label="Log out">Log Out</button>
+        </div>
+      </nav>
+
+      <!-- Main content -->
+      <div class="dashboard-main">
+
+        <!-- Quick-Add Task Form -->
+        <div class="add-task-card">
+          <h2>Add a Task</h2>
+          <form id="add-task-form" onsubmit="handleAddTask(event)" novalidate>
+            <div class="add-task-row">
+              <div class="add-task-input-wrap">
+                <input
+                  type="text"
+                  id="new-task-title"
+                  placeholder="What needs to get done?"
+                  autocomplete="off"
+                  aria-label="New task title"
+                  maxlength="200"
+                />
+              </div>
+              <div class="add-task-priority-wrap">
+                <select id="new-task-priority" aria-label="Task priority">
+                  <option value="medium" selected>Medium</option>
+                  <option value="high">High</option>
+                  <option value="low">Low</option>
+                </select>
+              </div>
+              <div class="add-task-btn-wrap">
+                <button type="submit" class="btn-primary" id="add-task-btn" aria-label="Add task">
+                  <span id="add-task-btn-text">Add Task</span>
+                  <div class="spinner spinner-sm hidden" id="add-task-spinner"></div>
+                </button>
+              </div>
+            </div>
+            <div class="add-task-error" id="add-task-error" role="alert">Task title is required.</div>
+          </form>
+        </div>
+
+        <!-- Active Tasks Section -->
+        <div class="tasks-section-header">
+          <span class="tasks-section-title">Active Tasks</span>
+          <span class="tasks-count-badge" id="active-tasks-count">0</span>
+        </div>
+
+        <!-- Active tasks list rendered by JS -->
+        <div id="active-task-list" class="task-list">
+          <div class="empty-state">
+            <div class="empty-state-icon">✅</div>
+            <p>No tasks yet. Add one above to get started.</p>
+          </div>
+        </div>
+
+        <!-- Completed Tasks Section -->
+        <div class="completed-section">
+          <button
+            class="completed-toggle-btn"
+            id="completed-toggle-btn"
+            onclick="toggleCompletedSection()"
+            aria-expanded="false"
+            aria-controls="completed-task-list"
+            style="display:none;"
+          >
+            <div class="completed-toggle-left">
+              <span class="completed-toggle-icon" id="completed-toggle-icon">▶</span>
+              <span>Completed</span>
+              <span class="completed-toggle-count" id="completed-count">0</span>
+            </div>
+            <span style="font-size:12px;color:var(--color-mist);font-weight:400;">Show / Hide</span>
+          </button>
+          <div class="completed-task-list" id="completed-task-list" aria-live="polite"></div>
+        </div>
+
+        <!-- placeholder Task List -->
+        <div class="task-list" id="active-task-list" aria-label="Active tasks" aria-live="polite">
+          <!-- Empty state shown when no tasks -->
+          <div class="empty-state" id="empty-state">
+            <div class="empty-state-icon" aria-hidden="true">✅</div>
+            <p>No tasks yet. Add one above to get started.</p>
+          </div>
+        </div>
+
+        <!-- Completed Tasks Section -->
+        <div class="completed-section" id="completed-section">
+          <button
+            class="completed-toggle-btn"
+            id="completed-toggle-btn"
+            onclick="toggleCompletedSection()"
+            aria-expanded="false"
+            aria-controls="completed-task-list"
+          >
+            <div class="completed-toggle-left">
+              <span class="completed-toggle-icon" id="completed-toggle-icon" aria-hidden="true">▶</span>
+              <span>Completed Tasks</span>
+              <span class="completed-toggle-count" id="completed-tasks-count">0</span>
+            </div>
+            <span style="font-size:12px;color:var(--color-mist);font-weight:400;">Click to expand</span>
+          </button>
+          <div class="completed-task-list" id="completed-task-list" aria-label="Completed tasks" aria-live="polite">
+            <!-- Completed tasks rendered here by task_rendering module -->
+          </div>
+        </div>
+
+      </div><!-- /.dashboard-main -->
+    </div><!-- /#screen-dashboard -->
+
+
+  <!-- Skip to main content (accessibility) -->
+  <a href="#app" class="skip-link">Skip to main content</a>
+
+  <!-- Logout Confirmation Modal -->
+  <div id="modal-logout-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-logout-title">
+    <div class="modal" id="modal-logout">
+      <div class="modal-header" id="modal-logout-title">Log Out?</div>
+      <div class="modal-body">Are you sure you want to log out of TaskFlow? You'll need to sign in again to access your tasks.</div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeLogoutModal()" aria-label="Cancel logout">Cancel</button>
+        <button class="btn-danger" onclick="confirmLogout()" aria-label="Confirm logout" style="background:rgba(226,94,108,0.1);padding:10px 16px;border-radius:9px;font-size:14px;font-weight:600;">Log Out</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+  <!-- Toast notification -->
+  <div id="toast" role="alert" aria-live="polite"></div>
+
+  <!-- Confirmation modal -->
+  <div id="modal-backdrop">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-header" id="modal-title">Confirm</div>
+      <div class="modal-body" id="modal-body">Are you sure?</div>
+      <div class="modal-footer">
+        <button class="btn-secondary" id="modal-cancel-btn" onclick="closeModal()">Cancel</button>
+        <button class="btn-danger"    id="modal-confirm-btn" onclick="closeModal()">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ─────────────────────────────────────────────
+       HELPERS
+    ───────────────────────────────────────────── */
+
+    /** Show one screen, hide all others */
+    function showOnly(screenId) {
+      var screens = ['screen-login','screen-dashboard','screen-settings'];
+      screens.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.style.display = 'none';
+          el.classList.remove('active');
+        }
+      });
+      var target = document.getElementById(screenId);
+      if (target) {
+        target.style.display = 'flex';
+        target.classList.add('active');
+      }
+    }
+
+    /** Hide the full-page loader */
+    function hideLoader() {
+      var loader = document.getElementById('screen-loader');
+      if (loader) loader.style.display = 'none';
+    }
+
+    /** Show the login screen */
+    function showLogin() {
+      showOnly('screen-login');
+    }
+
+    /** Toast notification (type: 'info' | 'success' | 'error' | 'warning') */
+    var _toastTimer = null;
+    function toast(msg, type) {
+      var el = document.getElementById('toast');
+      if (!el) return;
+      if (_toastTimer) { clearTimeout(_toastTimer); el.classList.remove('show'); }
+      el.textContent = msg;
+      el.className = 'toast ' + (type || 'info');
+      // force reflow so transition fires
+      void el.offsetWidth;
+      el.classList.add('show');
+      _toastTimer = setTimeout(function() {
+        el.classList.remove('show');
+        _toastTimer = null;
+      }, 3500);
+    }
+
+    /** Convenience wrapper — returns current Jarvis user or null */
+    function getCurrentUser() {
+      if (window.Jarvis && Jarvis.getCurrentUser) return Jarvis.getCurrentUser();
+      return null;
+    }
+
+    /** Modal helpers */
+    var _modalConfirmCallback = null;
+    function openModal(title, body, confirmLabel, confirmClass, onConfirm) {
+      document.getElementById('modal-title').textContent = title || 'Confirm';
+      document.getElementById('modal-body').textContent  = body  || 'Are you sure?';
+      var confirmBtn = document.getElementById('modal-confirm-btn');
+      confirmBtn.textContent  = confirmLabel || 'Confirm';
+      confirmBtn.className    = confirmClass || 'btn-danger';
+      _modalConfirmCallback   = onConfirm || null;
+      confirmBtn.onclick = function() { closeModal(); if (_modalConfirmCallback) _modalConfirmCallback(); };
+      document.getElementById('modal-cancel-btn').onclick = function() { closeModal(); };
+      document.getElementById('modal-backdrop').classList.add('show');
+    }
+    function closeModal() {
+      document.getElementById('modal-backdrop').classList.remove('show');
+      _modalConfirmCallback = null;
+    }
+    // Close modal on backdrop click
+    document.getElementById('modal-backdrop').addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
+    // Close modal on Escape
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeModal();
+    });
+
+    /* ─────────────────────────────────────────────
+       INIT
+    ───────────────────────────────────────────── */
+
+    async function init() {
+      try {
+        // Wait briefly for window.Jarvis to be ready (max 1s)
+        var tries = 0;
+        while (!window.Jarvis && tries++ < 20) {
+          await new Promise(function(r) { setTimeout(r, 50); });
+        }
+        if (!window.Jarvis) throw new Error('Jarvis backend not ready');
+
+        if (Jarvis.isLoggedIn()) {
+          if (typeof loadDashboard === 'function') await loadDashboard();
+          else showOnly('screen-dashboard');
+        } else {
+          showLogin();
+        }
+      } catch (err) {
+        console.error('Init failed:', err);
+        showLogin();
+      } finally {
+        hideLoader();
+      }
+    }
+
+    // Hard timeout — if init hasn't completed in 5s, force the login screen
+    setTimeout(function() {
+      var loader = document.getElementById('screen-loader');
+      if (loader && loader.style.display !== 'none') {
+        hideLoader();
+        showLogin();
+      }
+    }, 5000);
+
+    document.addEventListener('DOMContentLoaded', init);
+  
+    /* ─────────────────────────────────────────────
+       AUTH — Tab switching
+    ───────────────────────────────────────────── */
+    function switchAuthTab(tab) {
+      var loginTab   = document.getElementById('tab-login');
+      var signupTab  = document.getElementById('tab-signup');
+      var loginForm  = document.getElementById('form-login');
+      var signupForm = document.getElementById('form-signup');
+
+      if (tab === 'login') {
+        loginTab.classList.add('active');
+        loginTab.setAttribute('aria-selected', 'true');
+        signupTab.classList.remove('active');
+        signupTab.setAttribute('aria-selected', 'false');
+        loginForm.classList.add('active');
+        signupForm.classList.remove('active');
+        document.getElementById('login-email').focus();
+      } else {
+        signupTab.classList.add('active');
+        signupTab.setAttribute('aria-selected', 'true');
+        loginTab.classList.remove('active');
+        loginTab.setAttribute('aria-selected', 'false');
+        signupForm.classList.add('active');
+        loginForm.classList.remove('active');
+        document.getElementById('signup-name').focus();
+      }
+    }
+
+    /* ─────────────────────────────────────────────
+       AUTH — Login
+    ───────────────────────────────────────────── */
+    async function doLogin(event) {
+      event.preventDefault();
+      var email    = document.getElementById('login-email').value.trim();
+      var password = document.getElementById('login-password').value;
+
+      if (!email || !password) {
+        toast('Please enter your email and password.', 'error');
+        return;
+      }
+
+      var btn      = document.getElementById('login-btn');
+      var btnText  = document.getElementById('login-btn-text');
+      var spinner  = document.getElementById('login-spinner');
+
+      btn.disabled = true;
+      btnText.textContent = 'Logging in…';
+      spinner.classList.remove('hidden');
+
+      try {
+        await Jarvis.login(email, password);
+        toast('Welcome back!', 'success');
+        if (typeof loadDashboard === 'function') {
+          await loadDashboard();
+        } else {
+          showOnly('screen-dashboard');
+        }
+      } catch (err) {
+        var msg = (err && err.message) ? err.message : 'Invalid email or password.';
+        toast(msg, 'error');
+        document.getElementById('login-password').value = '';
+        document.getElementById('login-password').focus();
+      } finally {
+        btn.disabled = false;
+        btnText.textContent = 'Log In';
+        spinner.classList.add('hidden');
+      }
+    }
+
+    /* ─────────────────────────────────────────────
+       AUTH — Signup
+    ───────────────────────────────────────────── */
+    async function doSignup(event) {
+      event.preventDefault();
+      var name     = document.getElementById('signup-name').value.trim();
+      var email    = document.getElementById('signup-email').value.trim();
+      var password = document.getElementById('signup-password').value;
+
+      if (!email || !password) {
+        toast('Please enter your email and password.', 'error');
+        return;
+      }
+      if (password.length < 6) {
+        toast('Password must be at least 6 characters.', 'error');
+        return;
+      }
+
+      var fullName = name || email;
+
+      var btn      = document.getElementById('signup-btn');
+      var btnText  = document.getElementById('signup-btn-text');
+      var spinner  = document.getElementById('signup-spinner');
+
+      btn.disabled = true;
+      btnText.textContent = 'Creating account…';
+      spinner.classList.remove('hidden');
+
+      try {
+        await Jarvis.signup(email, password, fullName, 'user');
+        toast('Welcome to TaskFlow! 🎉', 'success');
+        if (typeof loadDashboard === 'function') {
+          await loadDashboard();
+        } else {
+          showOnly('screen-dashboard');
+        }
+      } catch (err) {
+        var msg = (err && err.message) ? err.message : 'Could not create account. Please try again.';
+        toast(msg, 'error');
+      } finally {
+        btn.disabled = false;
+        btnText.textContent = 'Create Account';
+        spinner.classList.add('hidden');
+      }
+    }
+
+    /* ─────────────────────────────────────────────
+       AUTH — Password reset prompt
+    ───────────────────────────────────────────── */
+    function showPasswordReset() {
+      toast('Check your email for password reset instructions. (Powered by Supabase)', 'info');
+    }
+
+    /* ─────────────────────────────────────────────
+       AUTH — Logout
+    ───────────────────────────────────────────── */
+    function doLogout() {
+      openModal(
+        'Log out?',
+        'You will be returned to the login screen.',
+        'Log Out',
+        'btn-danger',
+        function() {
+          Jarvis.logout();
+          toast('You have been logged out.', 'info');
+          showLogin();
+        }
+      );
+    }
+
+
+    /* ─────────────────────────────────────────────
+       DASHBOARD SHELL — Init & Navigation
+    ───────────────────────────────────────────── */
+
+    /** Load the dashboard screen — sets user email, shows screen.
+        Task data loading will be wired in task_crud module. */
+    async function loadDashboard() {
+      var user = getCurrentUser();
+      var emailEl = document.getElementById('dashboard-user-email');
+      if (emailEl && user) {
+        emailEl.textContent = user.email || user.full_name || 'Account';
+      }
+      showOnly('screen-dashboard');
+      // task_crud module will override/extend this to also load tasks
+      if (typeof loadTasks === 'function') {
+        await loadTasks();
+      }
+    }
+
+    /* ─────────────────────────────────────────────
+       DASHBOARD SHELL — Add Task (placeholder)
+       Full wiring in task_crud module.
+    ───────────────────────────────────────────── */
+    function handleAddTask(event) {
+      event.preventDefault();
+      var titleInput = document.getElementById('new-task-title');
+      var errorEl    = document.getElementById('add-task-error');
+      var title      = titleInput ? titleInput.value.trim() : '';
+
+      // Validate
+      if (!title) {
+        if (errorEl) errorEl.classList.add('show');
+        if (titleInput) titleInput.focus();
+        return;
+      }
+      if (errorEl) errorEl.classList.remove('show');
+
+      // If task_crud module has wired doAddTask, delegate to it
+      if (typeof doAddTask === 'function') {
+        doAddTask(title);
+      }
+    }
+
+    // Hide inline error when user types
+    document.addEventListener('DOMContentLoaded', function() {
+      var titleInput = document.getElementById('new-task-title');
+      if (titleInput) {
+        titleInput.addEventListener('input', function() {
+          var errorEl = document.getElementById('add-task-error');
+          if (errorEl) errorEl.classList.remove('show');
+        });
+      }
+    });
+
+    /* ─────────────────────────────────────────────
+       DASHBOARD SHELL — Completed Section Toggle
+    ───────────────────────────────────────────── */
+    var _completedOpen = false;
+
+    function toggleCompletedSection() {
+      _completedOpen = !_completedOpen;
+      var list   = document.getElementById('completed-task-list');
+      var icon   = document.getElementById('completed-toggle-icon');
+      var btn    = document.getElementById('completed-toggle-btn');
+      var hint   = btn ? btn.querySelector('span:last-child') : null;
+
+      if (list)  list.classList.toggle('open', _completedOpen);
+      if (icon)  icon.classList.toggle('open', _completedOpen);
+      if (btn)   btn.setAttribute('aria-expanded', _completedOpen ? 'true' : 'false');
+      if (hint)  hint.textContent = _completedOpen ? 'Click to collapse' : 'Click to expand';
+    }
+
+
+// ══════════════════════════════════════════════
+//  MODULE 4: Task CRUD Operations
+// ══════════════════════════════════════════════
+
+// ── In-memory state ──
+let allTasks = [];
+let taskPendingDeleteId = null;
+
+// ── Helpers ──
+function generateId() {
+  return 'task_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9);
+}
+
+function priorityOrder(p) {
+  return p === 'high' ? 0 : p === 'medium' ? 1 : 2;
+}
+
+function getActiveTasks() {
+  return allTasks
+    .filter(t => !t.is_completed)
+    .sort((a, b) => priorityOrder(a.priority) - priorityOrder(b.priority));
+}
+
+function getCompletedTasks() {
+  return allTasks
+    .filter(t => t.is_completed)
+    .sort((a, b) => new Date(b.completed_at || b.created_at) - new Date(a.completed_at || a.created_at));
+}
+
+// ── Load tasks from Jarvis ──
+async function loadTasks() {
+  try {
+    const rows = await Jarvis.loadData('tasks');
+    allTasks = Array.isArray(rows) ? rows : [];
+  } catch (err) {
+    console.error('loadTasks error:', err);
+    toast('Could not load tasks. Please check your connection.', 'error');
+    allTasks = [];
+  }
+  renderTasks();
+}
+
+// ── Render all tasks ──
+function renderTasks() {
+  renderActiveTasks();
+  renderCompletedTasks();
+}
+
+function renderActiveTasks() {
+  const active = getActiveTasks();
+  const container = document.getElementById('active-task-list');
+  const countBadge = document.getElementById('active-tasks-count');
+
+  if (countBadge) countBadge.textContent = active.length;
+
+  if (!container) return;
+
+  if (active.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">✅</div>
+        <p>No tasks yet. Add one above to get started.</p>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = active.map(task => buildTaskRowHTML(task, false)).join('');
+}
+
+function renderCompletedTasks() {
+  const completed = getCompletedTasks();
+  const toggle = document.getElementById('completed-toggle-btn');
+  const countEl = document.getElementById('completed-count');
+  const listEl = document.getElementById('completed-task-list');
+
+  if (countEl) countEl.textContent = completed.length;
+
+  // Show/hide the completed section based on whether there are completed tasks
+  if (toggle) toggle.style.display = completed.length === 0 ? 'none' : 'flex';
+
+  if (!listEl) return;
+
+  if (completed.length === 0) {
+    listEl.innerHTML = '';
+    return;
+  }
+
+  listEl.innerHTML = completed.map(task => buildTaskRowHTML(task, true)).join('');
+}
+
+function buildTaskRowHTML(task, isCompleted) {
+  const priority = task.priority || 'medium';
+  const priorityClass = 'priority-' + priority;
+  const badgeClass = 'badge-' + priority;
+  const priorityLabel = priority.charAt(0).toUpperCase() + priority.slice(1);
+  const titleClass = isCompleted ? 'task-title done' : 'task-title';
+  const checkClass = isCompleted ? 'btn-complete checked' : 'btn-complete';
+  const checkIcon = isCompleted ? '✓' : '';
+  const checkLabel = isCompleted ? 'Mark task incomplete' : 'Mark task complete';
+  const rowClass = isCompleted ? `task-row ${priorityClass} completed-row` : `task-row ${priorityClass}`;
+
+  return `
+    <div class="${rowClass}" data-task-id="${task.key || task.id}">
+      <button
+        class="${checkClass}"
+        onclick="handleToggleComplete('${task.key || task.id}', ${isCompleted})"
+        aria-label="${checkLabel}"
+        title="${checkLabel}"
+      >${checkIcon}</button>
+      <div class="task-content">
+        <span class="${titleClass}">${escapeHtml(task.title)}</span>
+        <span class="task-priority-badge ${badgeClass}">${priorityLabel}</span>
+      </div>
+      <div class="task-actions">
+        <button
+          class="btn-danger"
+          onclick="handleDeleteTask('${task.key || task.id}')"
+          aria-label="Delete task: ${escapeHtml(task.title)}"
+          title="Delete task"
+        >🗑</button>
+      </div>
+    </div>`;
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// ── Add Task ──
+async function handleAddTask(e) {
+  e.preventDefault();
+
+  const titleInput = document.getElementById('new-task-title');
+  const priorityInput = document.getElementById('new-task-priority');
+  const errorEl = document.getElementById('add-task-error');
+  const btn = document.getElementById('add-task-btn');
+  const btnText = document.getElementById('add-task-btn-text');
+  const spinner = document.getElementById('add-task-spinner');
+
+  const title = titleInput ? titleInput.value.trim() : '';
+  const priority = priorityInput ? priorityInput.value : 'medium';
+
+  // Validate
+  if (!title) {
+    if (errorEl) errorEl.classList.add('show');
+    if (titleInput) titleInput.focus();
+    return;
+  }
+  if (errorEl) errorEl.classList.remove('show');
+
+  // Loading state
+  if (btn) btn.disabled = true;
+  if (btnText) btnText.classList.add('hidden');
+  if (spinner) spinner.classList.remove('hidden');
+
+  const user = Jarvis.getCurrentUser();
+  const taskId = generateId();
+  const now = new Date().toISOString();
+
+  const newTask = {
+    key: taskId,
+    title: title,
+    priority: priority,
+    is_completed: false,
+    completed_at: null,
+    created_at: now,
+    updated_at: now,
+    user_id: user ? user.id : null
+  };
+
+  try {
+    await Jarvis.saveData('tasks', taskId, newTask);
+    allTasks.push(newTask);
+    renderTasks();
+    if (titleInput) titleInput.value = '';
+    if (priorityInput) priorityInput.value = 'medium';
+    toast('Task added!', 'success');
+  } catch (err) {
+    console.error('handleAddTask error:', err);
+    toast("Couldn't save task. Please check your connection and try again.", 'error');
+  } finally {
+    if (btn) btn.disabled = false;
+    if (btnText) btnText.classList.remove('hidden');
+    if (spinner) spinner.classList.add('hidden');
+  }
+}
+
+// ── Toggle Complete ──
+async function handleToggleComplete(taskKey, isCurrentlyCompleted) {
+  const taskIndex = allTasks.findIndex(t => (t.key || t.id) === taskKey);
+  if (taskIndex === -1) return;
+
+  const task = allTasks[taskIndex];
+  const nowCompleted = !isCurrentlyCompleted;
+  const now = new Date().toISOString();
+
+  const updatedTask = {
+    ...task,
+    is_completed: nowCompleted,
+    completed_at: nowCompleted ? now : null,
+    updated_at: now
+  };
+
+  // Optimistic update
+  allTasks[taskIndex] = updatedTask;
+  renderTasks();
+
+  try {
+    await Jarvis.saveData('tasks', taskKey, updatedTask);
+    if (nowCompleted) {
+      toast('Task completed! Great work. 🎉', 'success');
+    } else {
+      toast('Task moved back to active.', 'info');
+    }
+  } catch (err) {
+    console.error('handleToggleComplete error:', err);
+    // Revert optimistic update
+    allTasks[taskIndex] = task;
+    renderTasks();
+    toast("Couldn't update task. Please try again.", 'error');
+  }
+}
+
+// ── Delete Task ──
+function handleDeleteTask(taskKey) {
+  taskPendingDeleteId = taskKey;
+  const task = allTasks.find(t => (t.key || t.id) === taskKey);
+  const taskTitle = task ? task.title : 'this task';
+
+  // Populate and show modal
+  const modalBody = document.getElementById('delete-modal-body');
+  if (modalBody) {
+    modalBody.textContent = `Delete "${taskTitle}"? This action cannot be undone.`;
+  }
+
+  const backdrop = document.getElementById('modal-backdrop');
+  if (backdrop) backdrop.classList.add('show');
+
+  // Focus the cancel button for accessibility
+  setTimeout(() => {
+    const cancelBtn = document.getElementById('modal-cancel-btn');
+    if (cancelBtn) cancelBtn.focus();
+  }, 50);
+}
+
+async function confirmDeleteTask() {
+  if (!taskPendingDeleteId) return;
+
+  const taskKey = taskPendingDeleteId;
+  closeDeleteModal();
+
+  const taskIndex = allTasks.findIndex(t => (t.key || t.id) === taskKey);
+  if (taskIndex === -1) return;
+
+  // Optimistic removal
+  const removed = allTasks.splice(taskIndex, 1)[0];
+  renderTasks();
+
+  try {
+    await Jarvis.deleteData('tasks', taskKey);
+    toast('Task deleted.', 'info');
+  } catch (err) {
+    console.error('confirmDeleteTask error:', err);
+    // Revert
+    allTasks.splice(taskIndex, 0, removed);
+    renderTasks();
+    toast("Couldn't delete task. Please try again.", 'error');
+  }
+}
+
+function closeDeleteModal() {
+  taskPendingDeleteId = null;
+  const backdrop = document.getElementById('modal-backdrop');
+  if (backdrop) backdrop.classList.remove('show');
+}
+
+// ── Completed Section Toggle ──
+function toggleCompletedSection() {
+  const listEl = document.getElementById('completed-task-list');
+  const iconEl = document.getElementById('completed-toggle-icon');
+  if (!listEl) return;
+  const isOpen = listEl.classList.contains('open');
+  listEl.classList.toggle('open', !isOpen);
+  if (iconEl) iconEl.classList.toggle('open', !isOpen);
+}
+
+// ── loadDashboard (called from auth module, extended here) ──
+// Override/extend existing loadDashboard to also load tasks
+const _prevLoadDashboard = typeof loadDashboard === 'function' ? loadDashboard : null;
+
+async function loadDashboard() {
+  // Run previous loadDashboard logic (sets user email, shows screen)
+  if (_prevLoadDashboard) {
+    await _prevLoadDashboard();
+  } else {
+    const user = Jarvis.getCurrentUser();
+    const emailEl = document.getElementById('dashboard-user-email');
+    if (emailEl && user) emailEl.textContent = user.email || '';
+    showOnly('screen-dashboard');
+  }
+  // Load tasks
+  await loadTasks();
+}
+
+// ── Keyboard handler for modal (Escape to close) ──
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    const backdrop = document.getElementById('modal-backdrop');
+    if (backdrop && backdrop.classList.contains('show')) {
+      closeDeleteModal();
+    }
+  }
+});
+
+
+/* ── Task Rendering & UI ── */
+
+/**
+ * Master render function — called after any state change.
+ * Sorts active tasks high→medium→low, renders both lists.
+ */
+function renderTasks() {
+  const activeTasks    = (window.allTasks || []).filter(t => !t.value.is_completed);
+  const completedTasks = (window.allTasks || []).filter(t => t.value.is_completed);
+
+  // Sort active: high → medium → low
+  const priorityOrder = { high: 0, medium: 1, low: 2 };
+  activeTasks.sort((a, b) => {
+    const pa = priorityOrder[a.value.priority] ?? 1;
+    const pb = priorityOrder[b.value.priority] ?? 1;
+    if (pa !== pb) return pa - pb;
+    // Secondary sort: newest first
+    return new Date(b.value.created_at) - new Date(a.value.created_at);
+  });
+
+  renderActiveList(activeTasks);
+  renderCompletedList(completedTasks);
+  updateCompletedToggle(completedTasks.length);
+}
+
+/**
+ * Render active (incomplete) task list.
+ */
+function renderActiveList(activeTasks) {
+  const container = document.getElementById('active-task-list');
+  const countBadge = document.getElementById('active-task-count');
+  if (!container) return;
+
+  if (countBadge) countBadge.textContent = activeTasks.length;
+
+  if (activeTasks.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">✅</div>
+        <p>No tasks yet. Add one above to get started.</p>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = activeTasks.map((task, idx) => buildTaskRowHTML(task, false, idx)).join('');
+}
+
+/**
+ * Render completed task list.
+ */
+function renderCompletedList(completedTasks) {
+  const container = document.getElementById('completed-task-list');
+  if (!container) return;
+
+  if (completedTasks.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state" style="padding:32px 20px;">
+        <p style="font-size:13px;">No completed tasks yet.</p>
+      </div>`;
+    return;
+  }
+
+  // Sort completed: most recently completed first
+  completedTasks.sort((a, b) => {
+    return new Date(b.value.completed_at || b.value.created_at) - new Date(a.value.completed_at || a.value.created_at);
+  });
+
+  container.innerHTML = completedTasks.map((task, idx) => buildTaskRowHTML(task, true, idx)).join('');
+}
+
+/**
+ * Build HTML for a single task row.
+ * @param {object} task - task record {key, value}
+ * @param {boolean} isCompleted
+ * @param {number} idx - used for animation delay
+ */
+function buildTaskRowHTML(task, isCompleted, idx) {
+  const key      = task.key;
+  const val      = task.value;
+  const priority = val.priority || 'medium';
+  const title    = escapeHtml(val.title || 'Untitled Task');
+  const delay    = Math.min(idx * 40, 300);
+
+  const priorityLabel = priority.charAt(0).toUpperCase() + priority.slice(1);
+  const badgeClass    = 'badge-' + (priority === 'medium' ? 'medium' : priority === 'high' ? 'high' : 'low');
+  const rowClass      = 'priority-' + (priority === 'medium' ? 'medium' : priority === 'high' ? 'high' : 'low');
+
+  const checkboxHTML = isCompleted
+    ? `<button class="btn-uncomplete" onclick="handleUncompleteTask('${key}')"
+         aria-label="Mark task incomplete" title="Mark as incomplete">✓</button>`
+    : `<button class="btn-complete" onclick="handleCompleteTask('${key}')"
+         aria-label="Mark task complete" title="Mark as complete"></button>`;
+
+  const titleClass = isCompleted ? 'task-title done' : 'task-title';
+  const completedRowClass = isCompleted ? 'completed-row' : '';
+
+  return `
+    <div class="task-row ${rowClass} ${completedRowClass}" 
+         data-task-key="${key}"
+         style="animation-delay:${delay}ms">
+      ${checkboxHTML}
+      <div class="task-content">
+        <span class="${titleClass}">${title}</span>
+        <span class="task-priority-badge ${badgeClass}">${priorityLabel}</span>
+      </div>
+      <div class="task-actions">
+        <button class="btn-danger" onclick="handleDeleteTask('${key}')"
+          aria-label="Delete task" title="Delete task"
+          style="padding:6px 10px; font-size:16px; line-height:1;">🗑</button>
+      </div>
+    </div>`;
+}
+
+/**
+ * Escape HTML to prevent XSS in task titles.
+ */
+function escapeHtml(str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/**
+ * Update the completed section toggle button text and count.
+ */
+function updateCompletedToggle(count) {
+  const countEl = document.getElementById('completed-count-badge');
+  const toggleBtn = document.getElementById('completed-toggle-btn');
+  if (countEl) countEl.textContent = count;
+  if (toggleBtn) {
+    const label = count === 1 ? '1 Completed' : `${count} Completed`;
+    const iconEl = toggleBtn.querySelector('.completed-toggle-icon');
+    const leftEl = toggleBtn.querySelector('.completed-toggle-left span:not(.completed-toggle-icon):not(.completed-toggle-count)');
+    // Update text node directly if present
+    const spans = toggleBtn.querySelectorAll('span');
+    spans.forEach(s => {
+      if (s.classList.contains('completed-toggle-count')) {
+        s.textContent = count;
+      }
+    });
+  }
+}
+
+/**
+ * Toggle the completed tasks section open/closed.
+ * State is in-memory only (not persisted).
+ */
+function toggleCompletedSection() {
+  const list    = document.getElementById('completed-task-list');
+  const icon    = document.getElementById('completed-toggle-icon');
+  const btn     = document.getElementById('completed-toggle-btn');
+  if (!list) return;
+
+  const isOpen = list.classList.contains('open');
+  if (isOpen) {
+    list.classList.remove('open');
+    if (icon) icon.classList.remove('open');
+    if (btn) btn.setAttribute('aria-expanded', 'false');
+  } else {
+    list.classList.add('open');
+    if (icon) icon.classList.add('open');
+    if (btn) btn.setAttribute('aria-expanded', 'true');
+  }
+}
+
+/**
+ * Handle completing a task — mark is_completed=true, re-render.
+ */
+async function handleCompleteTask(key) {
+  const taskRecord = (window.allTasks || []).find(t => t.key === key);
+  if (!taskRecord) return;
+
+  // Optimistic UI — animate checkmark
+  const row = document.querySelector(`.task-row[data-task-key="${key}"]`);
+  if (row) {
+    const btn = row.querySelector('.btn-complete');
+    if (btn) { btn.classList.add('checked'); btn.textContent = '✓'; }
+  }
+
+  try {
+    const updated = {
+      ...taskRecord.value,
+      is_completed: true,
+      completed_at: new Date().toISOString(),
+      updated_at:   new Date().toISOString()
+    };
+    await Jarvis.saveData('tasks', key, updated);
+    // Update local state
+    taskRecord.value = updated;
+    renderTasks();
+    toast('Task completed! 🎉', 'success');
+  } catch (err) {
+    // Revert optimistic UI
+    const row2 = document.querySelector(`.task-row[data-task-key="${key}"]`);
+    if (row2) {
+      const btn = row2.querySelector('.btn-complete');
+      if (btn) { btn.classList.remove('checked'); btn.textContent = ''; }
+    }
+    toast('Couldn\'t complete task. Please try again.', 'error');
+    console.error('Complete task error:', err);
+  }
+}
+
+/**
+ * Handle un-completing a task — move back to active list.
+ */
+async function handleUncompleteTask(key) {
+  const taskRecord = (window.allTasks || []).find(t => t.key === key);
+  if (!taskRecord) return;
+
+  try {
+    const updated = {
+      ...taskRecord.value,
+      is_completed:  false,
+      completed_at:  null,
+      updated_at:    new Date().toISOString()
+    };
+    await Jarvis.saveData('tasks', key, updated);
+    taskRecord.value = updated;
+    renderTasks();
+    toast('Task moved back to active.', 'info');
+  } catch (err) {
+    toast('Couldn\'t update task. Please try again.', 'error');
+    console.error('Uncomplete task error:', err);
+  }
+}
+
+/**
+ * Handle delete — shows confirmation modal, then deletes.
+ * Delegates to existing confirmDeleteTask / closeDeleteModal pattern.
+ */
+function handleDeleteTask(key) {
+  // Use the existing modal pattern from task_crud module
+  if (typeof showDeleteModal === 'function') {
+    showDeleteModal(key);
+  } else {
+    // Fallback inline confirm
+    if (window.confirm('Delete this task? This cannot be undone.')) {
+      executeDeleteTask(key);
+    }
+  }
+}
+
+/**
+ * Execute the actual deletion and re-render.
+ */
+async function executeDeleteTask(key) {
+  // Animate row out
+  const row = document.querySelector(`.task-row[data-task-key="${key}"]`);
+  if (row) {
+    row.classList.add('removing');
+    await new Promise(r => setTimeout(r, 200));
+  }
+
+  try {
+    await Jarvis.deleteData('tasks', key);
+    // Remove from local state
+    window.allTasks = (window.allTasks || []).filter(t => t.key !== key);
+    renderTasks();
+    toast('Task deleted.', 'info');
+  } catch (err) {
+    // If row was animated out, re-render to restore it
+    renderTasks();
+    toast('Couldn\'t delete task. Please try again.', 'error');
+    console.error('Delete task error:', err);
+  }
+}
+
+/**
+ * Clear the add-task form inputs after successful save.
+ * Called by the task CRUD module's addTask handler.
+ */
+function clearAddTaskForm() {
+  const titleInput    = document.getElementById('task-title-input');
+  const priorityInput = document.getElementById('task-priority-select');
+  const errorEl       = document.getElementById('add-task-error');
+  if (titleInput)    { titleInput.value = ''; titleInput.focus(); }
+  if (priorityInput) priorityInput.value = 'medium';
+  if (errorEl)       errorEl.classList.remove('show');
+}
+
+/**
+ * Show inline validation error on add task form.
+ */
+function showAddTaskError(msg) {
+  const errorEl = document.getElementById('add-task-error');
+  if (errorEl) { errorEl.textContent = msg; errorEl.classList.add('show'); }
+}
+
+/**
+ * Hide inline validation error on add task form.
+ */
+function hideAddTaskError() {
+  const errorEl = document.getElementById('add-task-error');
+  if (errorEl) errorEl.classList.remove('show');
+}
+
+
+// ── Patch: Ensure renderTasks is called after task add ──
+// Override/extend the existing handleAddTask to clear form and call renderTasks.
+// This wraps the pattern from task_crud module.
+(function patchTaskRendering() {
+  // Wait for DOM ready then wire up any remaining gaps
+  document.addEventListener('DOMContentLoaded', function() {
+    // Patch: ensure add-task form Enter key also triggers add
+    var titleInput = document.getElementById('task-title-input');
+    if (titleInput) {
+      titleInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          var form = document.getElementById('add-task-form');
+          if (form) form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+        }
+      });
+    }
+
+    // Patch: wire completed-toggle-btn click if not already wired
+    var toggleBtn = document.getElementById('completed-toggle-btn');
+    if (toggleBtn && !toggleBtn._renderWired) {
+      toggleBtn._renderWired = true;
+      toggleBtn.addEventListener('click', toggleCompletedSection);
+    }
+  });
+})();
+
+
+/* ── MODULE 6: Polish & Refinement JS ── */
+
+// ── Logout Confirmation Modal ──
+function showLogoutModal() {
+  var backdrop = document.getElementById('modal-logout-backdrop');
+  backdrop.classList.add('show');
+  // Focus the cancel button for keyboard accessibility
+  setTimeout(function() {
+    var cancelBtn = backdrop.querySelector('.btn-secondary');
+    if (cancelBtn) cancelBtn.focus();
+  }, 50);
+  // Escape key closes modal
+  backdrop._escHandler = function(e) {
+    if (e.key === 'Escape') closeLogoutModal();
+  };
+  document.addEventListener('keydown', backdrop._escHandler);
+}
+
+function closeLogoutModal() {
+  var backdrop = document.getElementById('modal-logout-backdrop');
+  backdrop.classList.remove('show');
+  if (backdrop._escHandler) {
+    document.removeEventListener('keydown', backdrop._escHandler);
+    backdrop._escHandler = null;
+  }
+}
+
+function confirmLogout() {
+  closeLogoutModal();
+  Jarvis.logout();
+  showLogin();
+  toast('You\'ve been logged out.', 'info');
+}
+
+// ── Override doLogout to show confirmation modal ──
+// Patches the existing logout flow to use confirmation
+function doLogout() {
+  showLogoutModal();
+}
+
+// ── Trap focus inside modal (accessibility) ──
+function trapFocus(modalEl) {
+  var focusable = modalEl.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  if (!focusable.length) return;
+  var first = focusable[0];
+  var last = focusable[focusable.length - 1];
+  modalEl._trapHandler = function(e) {
+    if (e.key !== 'Tab') return;
+    if (e.shiftKey) {
+      if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+    } else {
+      if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  };
+  modalEl.addEventListener('keydown', modalEl._trapHandler);
+}
+
+function releaseFocus(modalEl) {
+  if (modalEl._trapHandler) {
+    modalEl.removeEventListener('keydown', modalEl._trapHandler);
+    modalEl._trapHandler = null;
+  }
+}
+
+// Apply focus trap to delete modal when it opens
+var _origShowDeleteModal = window.showDeleteModal;
+if (typeof window.showDeleteModal === 'function') {
+  window.showDeleteModal = function(taskId) {
+    _origShowDeleteModal(taskId);
+    var backdrop = document.getElementById('modal-backdrop');
+    if (backdrop) {
+      var modal = backdrop.querySelector('.modal');
+      if (modal) trapFocus(modal);
+    }
+  };
+}
+var _origCloseModal = window.closeModal;
+if (typeof window.closeModal === 'function') {
+  window.closeModal = function() {
+    var backdrop = document.getElementById('modal-backdrop');
+    if (backdrop) {
+      var modal = backdrop.querySelector('.modal');
+      if (modal) releaseFocus(modal);
+    }
+    _origCloseModal();
+  };
+}
+
+// Apply focus trap to logout modal
+document.getElementById('modal-logout-backdrop').addEventListener('transitionend', function() {
+  if (this.classList.contains('show')) trapFocus(document.getElementById('modal-logout'));
+  else releaseFocus(document.getElementById('modal-logout'));
+});
+
+// ── ARIA live region for toast ──
+(function() {
+  var t = document.getElementById('toast');
+  if (t) {
+    t.setAttribute('role', 'status');
+    t.setAttribute('aria-live', 'polite');
+    t.setAttribute('aria-atomic', 'true');
+  }
+})();
+
+// ── Patch navbar logout buttons to use confirmation modal ──
+// Runs after DOM ready; patches any existing onclick="doLogout()" calls
+document.addEventListener('DOMContentLoaded', function() {
+  // Ensure ARIA labels on key buttons
+  var addBtn = document.getElementById('add-task-btn');
+  if (addBtn && !addBtn.getAttribute('aria-label')) addBtn.setAttribute('aria-label', 'Add task');
+
+  var completedToggle = document.querySelector('.completed-toggle-btn');
+  if (completedToggle && !completedToggle.getAttribute('aria-expanded')) {
+    completedToggle.setAttribute('aria-expanded', 'false');
+  }
+
+  // Wire logout confirmation — patch all elements with onclick doLogout
+  document.querySelectorAll('[onclick="doLogout()"]').forEach(function(el) {
+    el.setAttribute('onclick', 'showLogoutModal()');
+  });
+});
+
+// ── Improved showDeleteModal with escape key & focus trap ──
+// Ensure escape closes the delete modal
+(function patchDeleteModalEscape() {
+  var orig = window.showDeleteModal;
+  if (typeof orig !== 'function') return;
+  window.showDeleteModal = function(taskId) {
+    orig(taskId);
+    var _esc = function(e) {
+      if (e.key === 'Escape') {
+        if (typeof window.closeModal === 'function') window.closeModal();
+        document.removeEventListener('keydown', _esc);
+      }
+    };
+    document.addEventListener('keydown', _esc);
+  };
+})();
+
+// ── Completed toggle ARIA update ──
+var _origToggleCompleted = window.toggleCompletedSection;
+if (typeof window.toggleCompletedSection === 'function') {
+  window.toggleCompletedSection = function() {
+    _origToggleCompleted();
+    var btn = document.querySelector('.completed-toggle-btn');
+    if (btn) {
+      var isOpen = document.querySelector('.completed-task-list.open') !== null;
+      btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    }
+  };
+}
+
+</script>
+</body>
+</html>
